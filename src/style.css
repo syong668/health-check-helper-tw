@@ -1,0 +1,52 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: oklch(0.98 0.012 92);
+  --foreground: oklch(0.24 0.035 255);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.24 0.035 255);
+  --primary: oklch(0.42 0.12 178);
+  --primary-foreground: oklch(0.98 0.012 92);
+  --secondary: oklch(0.93 0.035 87);
+  --secondary-foreground: oklch(0.28 0.04 255);
+  --muted: oklch(0.95 0.018 92);
+  --muted-foreground: oklch(0.5 0.04 255);
+  --accent: oklch(0.86 0.14 82);
+  --accent-foreground: oklch(0.27 0.05 70);
+  --border: oklch(0.88 0.025 92);
+  --input: oklch(0.88 0.025 92);
+  --ring: oklch(0.42 0.12 178);
+  --radius: 0.75rem;
+
+  font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  color: var(--foreground);
+  background: var(--background);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+h1,
+h2,
+h3 {
+  font-family: 'Space Grotesk', ui-sans-serif, sans-serif;
+}
