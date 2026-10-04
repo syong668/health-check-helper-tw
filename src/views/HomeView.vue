@@ -1,95 +1,152 @@
 <script setup lang="ts">
-import { ArrowRight, CheckCircle2, ClipboardCheck, ShieldCheck, Sparkles } from '@lucide/vue'
-import { RouterLink } from 'vue-router'
+import { computed, onMounted, ref, watch } from 'vue'
+import { storeToRefs } from 'pinia'
+import { AlertCircle, ArrowDown, Database, RefreshCw, SearchX, ShieldCheck } from '@lucide/vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
+import InstitutionCard from '@/components/institutions/InstitutionCard.vue'
+import InstitutionCardSkeleton from '@/components/institutions/InstitutionCardSkeleton.vue'
+import InstitutionSearch from '@/components/institutions/InstitutionSearch.vue'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { useInstitutionFilters } from '@/composables/useInstitutionFilters'
+import { useInstitutionStore } from '@/stores/institutions'
 
-const highlights = [
-  { icon: ClipboardCheck, title: '簡單幾題', text: '用幾分鐘整理最近的身體狀態。' },
-  { icon: Sparkles, title: '看見重點', text: '把模糊的感受轉成容易理解的方向。' },
-  { icon: ShieldCheck, title: '安心開始', text: '以日常紀錄為主，資料留在你的裝置。' },
-]
+const PAGE_SIZE = 6
+
+const store = useInstitutionStore()
+const { institutions, cities, isLoading, errorMessage, apiUpdateTime } = storeToRefs(store)
+const { keyword, selectedCity, filteredInstitutions, hasFilters, resetFilters } =
+  useInstitutionFilters(institutions)
+const visibleCount = ref(PAGE_SIZE)
+
+const visibleInstitutions = computed(() => filteredInstitutions.value.slice(0, visibleCount.value))
+const hasMore = computed(() => visibleCount.value < filteredInstitutions.value.length)
+const formattedUpdateTime = computed(() => {
+  const matched = apiUpdateTime.value.match(/^(\d{4})(\d{2})(\d{2})/)
+  return matched ? `${matched[1]}.${matched[2]}.${matched[3]}` : '—'
+})
+
+function handleReset() {
+  resetFilters()
+  visibleCount.value = PAGE_SIZE
+}
+
+function showMore() {
+  visibleCount.value += PAGE_SIZE
+}
+
+watch([keyword, selectedCity], () => {
+  visibleCount.value = PAGE_SIZE
+})
+
+onMounted(store.loadInstitutions)
 </script>
 
 <template>
   <DefaultLayout>
-    <section class="relative overflow-hidden border-b border-border/70 bg-secondary/35">
-      <div class="mx-auto grid max-w-6xl gap-12 px-5 py-18 sm:py-24 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:px-8 lg:py-28">
-        <div class="relative z-10">
-          <p class="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-background/80 px-3 py-1 text-sm font-semibold text-primary">
-            <span class="size-2 rounded-full bg-accent" aria-hidden="true"></span>
-            你的日常健康整理工具
+    <section class="hero-section bg-foreground text-white">
+      <div class="mx-auto grid max-w-7xl gap-8 px-5 pb-18 pt-11 sm:pb-20 sm:pt-14 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-end lg:gap-16 lg:px-8 lg:pb-22 lg:pt-16">
+        <div class="max-w-3xl">
+          <p class="mb-5 inline-flex items-center gap-2 border-l-2 border-accent pl-3 text-sm font-semibold tracking-wide text-accent">
+            <ShieldCheck class="size-4" aria-hidden="true" />
+            勞動部認可院所開放資料
           </p>
-          <h1 class="max-w-3xl text-5xl font-bold leading-[1.04] tracking-tight text-foreground sm:text-6xl lg:text-7xl">
-            先照顧自己，<br /><span class="text-primary">從了解開始。</span>
+          <h1 class="max-w-3xl text-4xl font-black leading-[1.12] tracking-[-0.035em] text-balance sm:text-5xl lg:text-[3.5rem]">
+            健檢去哪裡？<br />找到<span class="text-accent">認可的醫療機構</span>
           </h1>
-          <p class="mt-6 max-w-xl text-lg leading-8 text-muted-foreground">
-            透過溫和、簡單的自我檢視，幫你整理最近的睡眠、壓力與精力狀態，找到下一步可以做的小行動。
+          <p class="mt-4 max-w-2xl text-base leading-7 text-white/70 sm:mt-5 sm:text-lg sm:leading-8">
+            整合全台勞工體格及健康檢查認可院所，用縣市、院所或健檢類別快速篩選，讓你少繞點路。
           </p>
-          <div class="mt-9 flex flex-wrap items-center gap-4">
-            <RouterLink to="/checkup">
-              <Button size="lg" class="gap-2 px-6">開始今日檢測 <ArrowRight :size="18" aria-hidden="true" /></Button>
-            </RouterLink>
-            <a href="#how-it-works" class="text-sm font-semibold text-foreground underline decoration-primary/40 underline-offset-4 hover:decoration-primary">先看看怎麼用</a>
+        </div>
+
+        <div class="grid grid-cols-3 border-y border-white/15 py-5 lg:grid-cols-1 lg:gap-4 lg:border-y-0 lg:border-l lg:py-0 lg:pl-8">
+          <div>
+            <p class="text-2xl font-black tabular-nums sm:text-3xl lg:text-2xl">{{ isLoading ? '—' : institutions.length }}</p>
+            <p class="mt-1 text-xs text-white/55 sm:text-sm">認可院所</p>
+          </div>
+          <div class="border-l border-white/15 pl-4 sm:pl-6 lg:border-l-0 lg:pl-0">
+            <p class="text-2xl font-black tabular-nums sm:text-3xl lg:text-2xl">{{ isLoading ? '—' : cities.length }}</p>
+            <p class="mt-1 text-xs text-white/55 sm:text-sm">縣市覆蓋</p>
+          </div>
+          <div class="border-l border-white/15 pl-4 sm:pl-6 lg:border-l-0 lg:pl-0">
+            <p class="text-lg font-black tabular-nums sm:text-2xl lg:text-xl">{{ formattedUpdateTime }}</p>
+            <p class="mt-1 text-xs text-white/55 sm:text-sm">資料更新</p>
           </div>
         </div>
-
-        <div class="relative mx-auto w-full max-w-md">
-          <div class="absolute -inset-5 rounded-[2rem] bg-accent/30 blur-2xl" aria-hidden="true"></div>
-          <Card class="relative overflow-hidden border-primary/10 bg-background/95 shadow-xl shadow-primary/10">
-            <CardContent class="p-7 sm:p-9">
-              <div class="flex items-start justify-between">
-                <div>
-                  <p class="text-sm font-semibold text-primary">今日狀態</p>
-                  <h2 class="mt-2 text-3xl font-bold">從一個問題開始</h2>
-                </div>
-                <CheckCircle2 class="text-primary" :size="28" aria-hidden="true" />
-              </div>
-              <div class="mt-8 space-y-4">
-                <div class="rounded-xl bg-secondary/70 p-4">
-                  <p class="text-sm text-muted-foreground">最近的睡眠品質如何？</p>
-                  <div class="mt-3 flex gap-2">
-                    <span v-for="label in ['不錯', '普通', '需要調整']" :key="label" class="rounded-lg border border-border bg-background px-3 py-2 text-xs font-semibold">{{ label }}</span>
-                  </div>
-                </div>
-                <div class="flex items-center gap-3 text-sm text-muted-foreground">
-                  <span class="h-1.5 flex-1 rounded-full bg-primary"></span>
-                  <span class="h-1.5 flex-1 rounded-full bg-border"></span>
-                  <span class="h-1.5 flex-1 rounded-full bg-border"></span>
-                  1 / 3
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
       </div>
     </section>
 
-    <section id="about" class="mx-auto max-w-6xl px-5 py-16 lg:px-8 lg:py-20">
-      <div class="grid gap-5 md:grid-cols-3">
-        <Card v-for="highlight in highlights" :key="highlight.title" class="border-border/70 shadow-none">
-          <CardContent class="p-6">
-            <component :is="highlight.icon" class="mb-5 text-primary" :size="25" aria-hidden="true" />
-            <h2 class="text-xl font-bold">{{ highlight.title }}</h2>
-            <p class="mt-2 leading-7 text-muted-foreground">{{ highlight.text }}</p>
-          </CardContent>
-        </Card>
-      </div>
+    <section id="search" class="relative z-10 mx-auto -mt-8 max-w-7xl scroll-mt-6 px-5 lg:px-8">
+      <InstitutionSearch
+        v-model:keyword="keyword"
+        v-model:city="selectedCity"
+        :cities="cities"
+        :result-count="filteredInstitutions.length"
+        :is-loading="isLoading"
+        @reset="handleReset"
+      />
     </section>
 
-    <section id="how-it-works" class="bg-foreground py-16 text-background lg:py-20">
-      <div class="mx-auto grid max-w-6xl gap-8 px-5 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
+    <section class="mx-auto min-h-[38rem] max-w-7xl px-5 pb-24 pt-10 lg:px-8 lg:pt-14">
+      <div class="mb-7 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p class="text-sm font-semibold uppercase tracking-[0.18em] text-accent">How it works</p>
-          <h2 class="mt-3 text-3xl font-bold sm:text-4xl">三個步驟，留一點時間給自己。</h2>
+          <p class="text-sm font-bold text-primary">搜尋結果</p>
+          <h2 class="mt-1 text-2xl font-black tracking-tight sm:text-3xl">
+            <template v-if="isLoading">正在整理院所資料</template>
+            <template v-else-if="errorMessage">資料載入失敗</template>
+            <template v-else>找到 {{ filteredInstitutions.length }} 間醫療機構</template>
+          </h2>
         </div>
-        <div class="grid gap-6 sm:grid-cols-3">
-          <div v-for="(step, index) in ['回答幾個日常問題', '看見目前的生活狀態', '帶走一個小小建議']" :key="step" class="border-t border-background/20 pt-4">
-            <span class="font-display text-2xl font-bold text-accent">0{{ index + 1 }}</span>
-            <p class="mt-5 font-semibold leading-7">{{ step }}</p>
-          </div>
-        </div>
+        <p v-if="!isLoading && !errorMessage" class="flex items-center gap-2 text-sm text-muted-foreground">
+          <Database class="size-4" aria-hidden="true" />
+          資料來源：勞動部職業安全衛生署
+        </p>
+      </div>
+
+      <div v-if="isLoading" class="grid gap-5 md:grid-cols-2 xl:grid-cols-3" aria-live="polite" aria-label="正在載入醫療機構">
+        <InstitutionCardSkeleton v-for="item in 6" :key="item" />
+      </div>
+
+      <div v-else-if="errorMessage" class="rounded-2xl border border-destructive/20 bg-destructive/5 px-6 py-14 text-center">
+        <span class="mx-auto grid size-13 place-items-center rounded-full bg-destructive/10 text-destructive">
+          <AlertCircle class="size-6" aria-hidden="true" />
+        </span>
+        <h3 class="mt-5 text-xl font-bold">暫時無法取得官方資料</h3>
+        <p class="mx-auto mt-2 max-w-lg leading-7 text-muted-foreground">
+          {{ errorMessage }}。可能是網路、跨網域限制或官方 API 維護中，請稍後重試。
+        </p>
+        <Button class="mt-6 rounded-lg" @click="store.loadInstitutions">
+          <RefreshCw aria-hidden="true" />
+          重新載入
+        </Button>
+      </div>
+
+      <div v-else-if="visibleInstitutions.length" class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <InstitutionCard
+          v-for="institution in visibleInstitutions"
+          :key="institution.id"
+          :institution="institution"
+        />
+      </div>
+
+      <div v-else class="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
+        <span class="mx-auto grid size-13 place-items-center rounded-full bg-secondary text-primary">
+          <SearchX class="size-6" aria-hidden="true" />
+        </span>
+        <h3 class="mt-5 text-xl font-bold">沒有找到符合的院所</h3>
+        <p class="mt-2 text-muted-foreground">試著重新輸入關鍵字，或改選其他縣市。</p>
+        <Button v-if="hasFilters" variant="outline" class="mt-6 rounded-lg" @click="handleReset">
+          清除所有條件
+        </Button>
+      </div>
+
+      <div v-if="hasMore && !isLoading" class="mt-10 text-center">
+        <Button variant="outline" size="lg" class="rounded-full px-7" @click="showMore">
+          顯示更多
+          <ArrowDown aria-hidden="true" />
+        </Button>
+        <p class="mt-3 text-xs text-muted-foreground">
+          已顯示 {{ visibleInstitutions.length }} / {{ filteredInstitutions.length }} 間
+        </p>
       </div>
     </section>
   </DefaultLayout>

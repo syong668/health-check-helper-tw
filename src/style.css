@@ -1,28 +1,30 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(0.98 0.012 92);
-  --foreground: oklch(0.24 0.035 255);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.24 0.035 255);
-  --primary: oklch(0.42 0.12 178);
-  --primary-foreground: oklch(0.98 0.012 92);
-  --secondary: oklch(0.93 0.035 87);
-  --secondary-foreground: oklch(0.28 0.04 255);
-  --muted: oklch(0.95 0.018 92);
-  --muted-foreground: oklch(0.5 0.04 255);
-  --accent: oklch(0.86 0.14 82);
-  --accent-foreground: oklch(0.27 0.05 70);
-  --border: oklch(0.88 0.025 92);
-  --input: oklch(0.88 0.025 92);
-  --ring: oklch(0.42 0.12 178);
+  --background: #f4f8fa;
+  --foreground: #152a34;
+  --card: #ffffff;
+  --card-foreground: #152a34;
+  --primary: #0f7490;
+  --primary-foreground: #ffffff;
+  --secondary: #e7f3f5;
+  --secondary-foreground: #254c5a;
+  --muted: #edf3f5;
+  --muted-foreground: #5b7083;
+  --accent: #32c5b4;
+  --accent-foreground: #0b2d3a;
+  --destructive: #dc2626;
+  --border: #d7e4e8;
+  --input: #78939d;
+  --ring: #0f7490;
+  --mint: #32c5b4;
+  --brand-deep: #0b2d3a;
   --radius: 0.75rem;
 
-  font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  font-family: Inter, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", ui-sans-serif, system-ui, sans-serif;
   color: var(--foreground);
   background: var(--background);
   font-synthesis: none;
@@ -30,23 +32,79 @@
   -webkit-font-smoothing: antialiased;
 }
 
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-mint: var(--mint);
+  --color-brand-deep: var(--brand-deep);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
 * {
   box-sizing: border-box;
+  border-color: var(--border);
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
+  background: var(--background);
 }
 
 button,
-input {
+input,
+select {
   font: inherit;
 }
 
-h1,
-h2,
-h3 {
-  font-family: 'Space Grotesk', ui-sans-serif, sans-serif;
+button,
+select {
+  cursor: pointer;
+}
+
+::selection {
+  color: var(--primary-foreground);
+  background: var(--primary);
+}
+
+.hero-section {
+  background: var(--brand-deep);
+  border-bottom: 1px solid color-mix(in oklch, white 12%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }
