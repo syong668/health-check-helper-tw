@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {
-  Building2,
   MapPin,
   Navigation,
   Phone,
@@ -20,25 +19,21 @@ const mapHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComp
 </script>
 
 <template>
-  <Card class="institution-card group h-full gap-0 overflow-hidden rounded-2xl border-border/70 py-0 shadow-lg shadow-brand-deep/8 transition duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl hover:shadow-brand-deep/12">
+  <Card class="institution-card h-full gap-0 rounded-2xl border-border py-0 shadow-sm shadow-brand-deep/5 transition-colors duration-200 hover:border-primary/50 focus-within:border-primary/50">
     <CardContent class="flex h-full flex-col p-5 sm:p-6">
-      <div class="flex items-start justify-between gap-4">
-        <div class="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-          <Building2 class="size-5" aria-hidden="true" />
+      <div class="flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <h3 class="text-xl leading-7 text-foreground [overflow-wrap:anywhere]">
+            {{ institution.name }}
+          </h3>
+          <p class="mt-2 text-xs leading-5 text-muted-foreground">機構代碼 {{ institution.code }}</p>
         </div>
-        <span class="rounded-full bg-secondary px-3 py-1 text-xs font-bold text-secondary-foreground">
+        <span class="shrink-0 rounded-lg bg-secondary px-2.5 py-1 text-xs leading-5 text-secondary-foreground">
           {{ institution.city }}
         </span>
       </div>
 
-      <div class="mt-5">
-        <p class="text-xs font-semibold tracking-wide text-muted-foreground">機構代碼 {{ institution.code }}</p>
-        <h2 class="mt-2 text-xl font-bold leading-snug tracking-tight text-foreground">
-          {{ institution.name }}
-        </h2>
-      </div>
-
-      <div class="mt-5 space-y-3 text-sm leading-6 text-muted-foreground">
+      <div class="mt-5 space-y-3 text-sm leading-6 text-muted-foreground [overflow-wrap:anywhere]">
         <p class="flex items-start gap-3">
           <MapPin class="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
           <span>{{ institution.address }}</span>
@@ -59,12 +54,12 @@ const mapHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComp
           :institution="institution"
         />
 
-        <div class="mt-3 grid grid-cols-2 gap-3 border-t border-border/70 pt-5">
-          <Button as="a" :href="phoneHref" variant="outline" class="rounded-lg">
+        <div class="mt-4 grid grid-cols-2 gap-3">
+          <Button as="a" :href="phoneHref" variant="outline" class="min-h-11 rounded-lg shadow-none">
             <Phone aria-hidden="true" />
             撥打電話
           </Button>
-          <Button as="a" :href="mapHref" target="_blank" rel="noopener noreferrer" class="rounded-lg">
+          <Button as="a" :href="mapHref" target="_blank" rel="noopener noreferrer" class="min-h-11 rounded-lg shadow-none">
             <Navigation aria-hidden="true" />
             地圖導航
           </Button>

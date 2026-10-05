@@ -12,34 +12,33 @@
 }
 
 :root {
-  --background: #f4f8fa;
-  --foreground: #152a34;
+  --background: #f7faf9;
+  --foreground: #233c43;
   --card: #ffffff;
-  --card-foreground: #152a34;
-  --primary: #0f7490;
+  --card-foreground: #233c43;
+  --primary: #336c7d;
   --primary-foreground: #ffffff;
-  --secondary: #e7f3f5;
-  --secondary-foreground: #254c5a;
-  --muted: #edf3f5;
-  --muted-foreground: #5b7083;
-  --accent: #32c5b4;
-  --accent-foreground: #0b2d3a;
+  --secondary: #edf5f2;
+  --secondary-foreground: #31584e;
+  --muted: #f0f5f3;
+  --muted-foreground: #5c716e;
+  --accent: #dbece6;
+  --accent-foreground: #233c43;
   --destructive: #dc2626;
-  --border: #d7e4e8;
-  --input: #78939d;
-  --ring: #0f7490;
-  --mint: #32c5b4;
-  --brand-deep: #0b2d3a;
-  /* Header 獨立配色，不影響全站的醫療藍主色。 */
-  --header-background: #336c7d;
+  --border: #dce7e2;
+  --input: #7c9590;
+  --ring: var(--primary);
+  --mint: #dbece6;
+  --brand-deep: #233c43;
+  /* 灰藍統一品牌與操作色，淡薄荷只用於背景層次。 */
+  --header-background: var(--primary);
   --header-foreground: #ffffff;
   --header-logo-background: #ddf2eb;
   --header-logo-foreground: #244b57;
-  --hero-background: #f4f8fa;
-  --hero-illustration-backdrop: #e1eef2;
-  --source-badge-background: #effbff;
-  --source-badge-foreground: #0a4353;
-  --source-badge-border: #a1ceda;
+  --hero-background: var(--background);
+  --source-badge-background: #edf5f2;
+  --source-badge-foreground: #31584e;
+  --source-badge-border: #b6cfc5;
   --radius: 0.75rem;
   --app-font-family: "jf open 粉圓", "PingFang TC", "Microsoft JhengHei", ui-sans-serif, system-ui, sans-serif;
 
@@ -83,6 +82,7 @@
   --color-header-foreground: var(--header-foreground);
   --color-header-logo: var(--header-logo-background);
   --color-header-logo-foreground: var(--header-logo-foreground);
+  --color-hero: var(--hero-background);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -91,7 +91,13 @@
 
 * {
   box-sizing: border-box;
-  border-color: var(--border);
+}
+
+/* 預設邊線放在 base 層，讓元件的 border-input / 焦點色能正常覆寫。 */
+@layer base {
+  * {
+    border-color: var(--border);
+  }
 }
 
 html {
@@ -125,28 +131,14 @@ select {
   background: var(--hero-background);
 }
 
+.hero-illustration img {
+  filter: drop-shadow(0 0.5rem 0.75rem rgb(35 60 67 / 7%));
+}
+
 .hero-source-badge {
   color: var(--source-badge-foreground);
   background: var(--source-badge-background);
   border: 1px solid var(--source-badge-border);
-}
-
-.hero-illustration-backdrop {
-  width: min(88%, 14rem);
-  height: 86%;
-  left: 50%;
-  top: 8%;
-  background: var(--hero-illustration-backdrop);
-  border-radius: 44% 56% 38% 62% / 56% 40% 60% 44%;
-  transform: translateX(-46%) rotate(-8deg);
-}
-
-@media (min-width: 64rem) {
-  .hero-illustration-backdrop {
-    width: 98%;
-    height: 88%;
-    top: 6%;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

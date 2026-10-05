@@ -118,19 +118,19 @@ onBeforeUnmount(cancelCountUp)
 <template>
   <DefaultLayout>
     <section class="hero-section text-foreground">
-      <div class="mx-auto grid max-w-7xl gap-6 px-5 pb-16 pt-9 sm:pb-18 sm:pt-12 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-center lg:gap-10 lg:px-8 lg:pb-14 lg:pt-8 xl:grid-cols-[minmax(0,1fr)_30rem] xl:pb-10 xl:pt-5">
-        <div class="max-w-3xl">
-          <p class="hero-source-badge mb-5 inline-flex max-w-full items-center gap-2 rounded-full px-4 py-2 text-sm">
+      <div class="mx-auto grid max-w-7xl gap-8 px-5 pb-16 pt-8 sm:pb-18 sm:pt-10 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-center lg:gap-12 lg:px-8 lg:pb-16 lg:pt-12 xl:grid-cols-[minmax(0,1fr)_32rem]">
+        <div class="min-w-0 max-w-3xl">
+          <p class="hero-source-badge mb-4 inline-flex max-w-full items-center gap-2 rounded-full px-3 py-1.5 text-xs sm:text-sm">
             <ShieldCheck class="size-4 shrink-0" aria-hidden="true" />
             勞動部認可院所開放資料
           </p>
-          <h1 class="max-w-3xl text-[2rem] leading-[1.4] tracking-normal text-balance sm:text-[2.75rem] lg:text-[2.75rem] xl:text-[3.25rem]">
+          <h1 class="max-w-3xl text-[2rem] leading-[1.35] tracking-normal text-balance sm:text-[2.75rem] lg:text-[2.75rem] xl:text-[3.25rem]">
             健檢去哪裡？<br />找到<span class="text-primary">認可的醫療機構</span>
           </h1>
-          <p class="mt-4 max-w-xl text-base leading-7 text-muted-foreground sm:mt-5 sm:text-lg sm:leading-8">
+          <p class="mt-4 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
             整合全台勞工體格及健康檢查認可院所，用縣市、院所或健檢類別快速篩選，讓你少繞點路。
           </p>
-          <dl class="mt-6 grid w-full max-w-lg grid-cols-3">
+          <dl class="mt-5 grid w-full max-w-lg grid-cols-3 sm:mt-6">
             <div class="flex min-w-0 flex-col items-start gap-1 border-l py-1 pl-2 sm:pl-6">
               <dt class="order-2 text-xs leading-5 text-muted-foreground sm:text-sm">認可院所</dt>
               <dd class="order-1 text-2xl leading-8 tabular-nums text-foreground sm:text-3xl sm:leading-9">
@@ -152,8 +152,8 @@ onBeforeUnmount(cancelCountUp)
           </dl>
         </div>
 
-        <div class="hero-illustration relative isolate grid h-45 place-items-center sm:h-56 lg:h-96 xl:h-[27.5rem]" aria-hidden="true">
-          <div class="hero-illustration-backdrop pointer-events-none absolute -z-10"></div>
+        <!-- lg（1024px）以上顯示插圖並切換雙欄。 -->
+        <div class="hero-illustration relative hidden place-items-center lg:grid lg:h-96 xl:h-128" aria-hidden="true">
           <img
             :src="clinicVisit"
             alt=""
@@ -161,7 +161,7 @@ onBeforeUnmount(cancelCountUp)
             height="1254"
             fetchpriority="high"
             decoding="async"
-            class="h-45 w-auto max-w-full object-contain sm:h-56 lg:h-96 xl:h-[27.5rem]"
+            class="w-auto max-w-full object-contain lg:h-96 xl:h-128"
           />
         </div>
       </div>

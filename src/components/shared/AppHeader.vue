@@ -3,7 +3,7 @@ import { Cross, ExternalLink, Search } from '@lucide/vue'
 </script>
 
 <template>
-  <header class="relative z-30 bg-background px-3 sm:px-5 lg:px-8">
+  <header class="relative z-30 bg-hero px-3 sm:px-5 lg:px-8">
     <div class="mx-auto flex min-h-20 max-w-7xl flex-wrap items-center justify-between gap-x-4 gap-y-3 rounded-b-3xl bg-header px-4 py-4 text-header-foreground sm:px-6 lg:rounded-b-[2rem] lg:px-8">
       <a href="#" class="flex min-h-11 items-center gap-3 rounded-xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-header-foreground" aria-label="好檢回到首頁">
         <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-header-logo text-header-logo-foreground">
