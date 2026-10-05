@@ -3,6 +3,14 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@font-face {
+  font-family: "jf open 粉圓";
+  src: url("/fonts/jf-openhuninn-2.1.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
 :root {
   --background: #f4f8fa;
   --foreground: #152a34;
@@ -22,9 +30,20 @@
   --ring: #0f7490;
   --mint: #32c5b4;
   --brand-deep: #0b2d3a;
+  /* Header 獨立配色，不影響全站的醫療藍主色。 */
+  --header-background: #336c7d;
+  --header-foreground: #ffffff;
+  --header-logo-background: #ddf2eb;
+  --header-logo-foreground: #244b57;
+  --hero-background: #f4f8fa;
+  --hero-illustration-backdrop: #e1eef2;
+  --source-badge-background: #effbff;
+  --source-badge-foreground: #0a4353;
+  --source-badge-border: #a1ceda;
   --radius: 0.75rem;
+  --app-font-family: "jf open 粉圓", "PingFang TC", "Microsoft JhengHei", ui-sans-serif, system-ui, sans-serif;
 
-  font-family: Inter, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--app-font-family);
   color: var(--foreground);
   background: var(--background);
   font-synthesis: none;
@@ -33,6 +52,15 @@
 }
 
 @theme inline {
+  --font-sans: var(--app-font-family);
+  /* 粉圓體只有原生 Regular；以字級與留白呈現資訊層級。 */
+  --font-weight-medium: 400;
+  --font-weight-semibold: 400;
+  --font-weight-bold: 400;
+  --font-weight-extrabold: 400;
+  --font-weight-black: 400;
+  --tracking-tight: 0em;
+  --tracking-wide: 0.015em;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -51,6 +79,10 @@
   --color-ring: var(--ring);
   --color-mint: var(--mint);
   --color-brand-deep: var(--brand-deep);
+  --color-header: var(--header-background);
+  --color-header-foreground: var(--header-foreground);
+  --color-header-logo: var(--header-logo-background);
+  --color-header-logo-foreground: var(--header-logo-foreground);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -90,8 +122,31 @@ select {
 }
 
 .hero-section {
-  background: var(--brand-deep);
-  border-bottom: 1px solid color-mix(in oklch, white 12%, transparent);
+  background: var(--hero-background);
+}
+
+.hero-source-badge {
+  color: var(--source-badge-foreground);
+  background: var(--source-badge-background);
+  border: 1px solid var(--source-badge-border);
+}
+
+.hero-illustration-backdrop {
+  width: min(88%, 14rem);
+  height: 86%;
+  left: 50%;
+  top: 8%;
+  background: var(--hero-illustration-backdrop);
+  border-radius: 44% 56% 38% 62% / 56% 40% 60% 44%;
+  transform: translateX(-46%) rotate(-8deg);
+}
+
+@media (min-width: 64rem) {
+  .hero-illustration-backdrop {
+    width: 98%;
+    height: 88%;
+    top: 6%;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
