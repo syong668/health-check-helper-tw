@@ -17,9 +17,12 @@ const COUNT_UP_DURATION = 1000
 
 const store = useInstitutionStore()
 const { institutions, cities, isLoading, errorMessage, apiUpdateTime } = storeToRefs(store)
-const { keyword, selectedCity, filteredInstitutions, hasFilters, resetFilters } =
-  useInstitutionFilters(institutions)
+const {
+  keyword, selectedCity, selectedDistricts, selectedCategories,
+  districts, categoryOptions, filteredInstitutions, hasFilters, resetFilters,
+} = useInstitutionFilters(institutions)
 const visibleCount = ref(PAGE_SIZE)
+const queryMode = ref('district')
 const preferredReducedMotion = usePreferredReducedMotion()
 const statisticsReady = ref(false)
 const displayedInstitutionCount = ref(0)
@@ -107,9 +110,9 @@ watch(preferredReducedMotion, (preference) => {
   }
 }, { flush: 'sync' })
 
-watch([keyword, selectedCity], () => {
+watch([keyword, selectedCity, selectedDistricts, selectedCategories], () => {
   visibleCount.value = PAGE_SIZE
-})
+}, { deep: true })
 
 onMounted(store.loadInstitutions)
 onBeforeUnmount(cancelCountUp)
@@ -169,16 +172,23 @@ onBeforeUnmount(cancelCountUp)
 
     <section id="search" class="relative z-10 mx-auto -mt-8 max-w-7xl scroll-mt-6 px-5 lg:px-8">
       <InstitutionSearch
+        v-model:query-mode="queryMode"
         v-model:keyword="keyword"
         v-model:city="selectedCity"
+        v-model:selected-districts="selectedDistricts"
+        v-model:categories="selectedCategories"
         :cities="cities"
+        :districts="districts"
+        :category-options="categoryOptions"
+        :has-filters="hasFilters"
+        :error-message="errorMessage"
         :result-count="filteredInstitutions.length"
         :is-loading="isLoading"
         @reset="handleReset"
       />
     </section>
 
-    <section class="mx-auto min-h-[38rem] max-w-7xl px-5 pb-24 pt-10 lg:px-8 lg:pt-14">
+    <section v-show="queryMode === 'district'" class="mx-auto min-h-[38rem] max-w-7xl px-5 pb-24 pt-10 lg:px-8 lg:pt-14">
       <div class="mb-7 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p class="text-sm font-bold text-primary">搜尋結果</p>
@@ -225,7 +235,7 @@ onBeforeUnmount(cancelCountUp)
           <SearchX class="size-6" aria-hidden="true" />
         </span>
         <h3 class="mt-5 text-xl font-bold">沒有找到符合的院所</h3>
-        <p class="mt-2 text-muted-foreground">試著重新輸入關鍵字，或改選其他縣市。</p>
+        <p class="mt-2 text-muted-foreground">試著調整關鍵字、縣市、鄉鎮市區，或減少勾選的健檢類別。</p>
         <Button v-if="hasFilters" variant="outline" class="mt-6 rounded-lg" @click="handleReset">
           清除所有條件
         </Button>
