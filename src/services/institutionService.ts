@@ -11,7 +11,9 @@ export const INSTITUTION_API_URL =
 const REQUEST_LIMIT = 1000
 const API_REQUEST_URL =
   import.meta.env.VITE_INSTITUTION_API_URL ??
-  '/mol-api/rest/datastore/A17000000J-020057-Nvt'
+  (import.meta.env.PROD
+    ? `${import.meta.env.BASE_URL}data/institutions.json`
+    : '/mol-api/rest/datastore/A17000000J-020057-Nvt')
 
 function formatRocDate(date: string) {
   if (!/^\d{7}$/.test(date)) return date

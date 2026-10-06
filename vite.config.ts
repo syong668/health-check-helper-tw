@@ -12,7 +12,8 @@ const molApiProxy = {
 }
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ command, isPreview }) => ({
+  base: command === 'serve' && !isPreview ? '/' : '/health-check-helper-tw/',
   plugins: [vue(), tailwindcss()],
   server: {
     proxy: molApiProxy,
@@ -25,4 +26,4 @@ export default defineConfig({
       '@': path.resolve(import.meta.dirname, './src'),
     },
   },
-})
+}))
