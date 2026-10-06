@@ -31,6 +31,7 @@ export interface MedicalInstitution {
   id: string
   code: string
   city: string
+  district: string
   name: string
   address: string
   contactPerson: string
@@ -46,4 +47,6 @@ export interface MedicalInstitution {
 export interface InstitutionFilters {
   keyword: string
   city: string
+  districts: string[]
+  categories: string[]
 }

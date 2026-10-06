@@ -11,11 +11,10 @@ import { Cross } from '@lucide/vue'
         </span>
         <div>
           <p class="font-bold text-foreground">好檢 · 健康檢查認可醫療機構查詢</p>
-          <p class="mt-0.5 text-xs">Vue 3 API 串接練習專案</p>
         </div>
       </div>
       <p class="max-w-lg text-xs leading-6 sm:text-right">
-        資料來源：勞動部職業安全衛生署。實際認可狀態與預約資訊，請以官方公告及醫療機構回覆為準。
+        資料來源：勞動部職業安全衛生署。<br>實際認可狀態與預約資訊，請以官方公告及醫療機構回覆為準。
       </p>
     </div>
   </footer>

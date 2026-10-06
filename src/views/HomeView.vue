@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { usePreferredReducedMotion } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { AlertCircle, ArrowDown, Database, RefreshCw, SearchX, ShieldCheck } from '@lucide/vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
+import clinicVisit from '@/assets/illustrations/clinic-visit.png'
 import InstitutionCard from '@/components/institutions/InstitutionCard.vue'
 import InstitutionCardSkeleton from '@/components/institutions/InstitutionCardSkeleton.vue'
 import InstitutionSearch from '@/components/institutions/InstitutionSearch.vue'
@@ -11,12 +13,22 @@ import { useInstitutionFilters } from '@/composables/useInstitutionFilters'
 import { useInstitutionStore } from '@/stores/institutions'
 
 const PAGE_SIZE = 6
+const COUNT_UP_DURATION = 1000
 
 const store = useInstitutionStore()
 const { institutions, cities, isLoading, errorMessage, apiUpdateTime } = storeToRefs(store)
-const { keyword, selectedCity, filteredInstitutions, hasFilters, resetFilters } =
-  useInstitutionFilters(institutions)
+const {
+  keyword, selectedCity, selectedDistricts, selectedCategories,
+  districts, categoryOptions, filteredInstitutions, hasFilters, resetFilters,
+} = useInstitutionFilters(institutions)
 const visibleCount = ref(PAGE_SIZE)
+const queryMode = ref('district')
+const preferredReducedMotion = usePreferredReducedMotion()
+const statisticsReady = ref(false)
+const displayedInstitutionCount = ref(0)
+const displayedCityCount = ref(0)
+let hasPlayedCountUp = false
+let countUpFrame: number | undefined
 
 const visibleInstitutions = computed(() => filteredInstitutions.value.slice(0, visibleCount.value))
 const hasMore = computed(() => visibleCount.value < filteredInstitutions.value.length)
@@ -34,59 +46,149 @@ function showMore() {
   visibleCount.value += PAGE_SIZE
 }
 
-watch([keyword, selectedCity], () => {
-  visibleCount.value = PAGE_SIZE
+function cancelCountUp() {
+  if (countUpFrame !== undefined) {
+    cancelAnimationFrame(countUpFrame)
+    countUpFrame = undefined
+  }
+}
+
+function showFinalCounts() {
+  displayedInstitutionCount.value = institutions.value.length
+  displayedCityCount.value = cities.value.length
+}
+
+function startCountUp() {
+  const institutionTarget = institutions.value.length
+  const cityTarget = cities.value.length
+  let startedAt: number | undefined
+
+  displayedInstitutionCount.value = 0
+  displayedCityCount.value = 0
+
+  // Two counts share the same clock, so they finish together regardless of size.
+  function updateCounts(timestamp: number) {
+    startedAt ??= timestamp
+    const progress = Math.min((timestamp - startedAt) / COUNT_UP_DURATION, 1)
+    const easedProgress = 1 - (1 - progress) ** 3
+
+    displayedInstitutionCount.value = Math.floor(institutionTarget * easedProgress)
+    displayedCityCount.value = Math.floor(cityTarget * easedProgress)
+
+    if (progress < 1) {
+      countUpFrame = requestAnimationFrame(updateCounts)
+    } else {
+      countUpFrame = undefined
+      showFinalCounts()
+    }
+  }
+
+  countUpFrame = requestAnimationFrame(updateCounts)
+}
+
+watch(isLoading, (loading) => {
+  cancelCountUp()
+  statisticsReady.value = !loading && !errorMessage.value
+
+  if (!statisticsReady.value) return
+
+  if (hasPlayedCountUp || preferredReducedMotion.value === 'reduce') {
+    showFinalCounts()
+  } else if (institutions.value.length || cities.value.length) {
+    startCountUp()
+  } else {
+    showFinalCounts()
+  }
+
+  hasPlayedCountUp = true
 })
 
+watch(preferredReducedMotion, (preference) => {
+  if (preference === 'reduce') {
+    cancelCountUp()
+    if (statisticsReady.value) showFinalCounts()
+  }
+}, { flush: 'sync' })
+
+watch([keyword, selectedCity, selectedDistricts, selectedCategories], () => {
+  visibleCount.value = PAGE_SIZE
+}, { deep: true })
+
 onMounted(store.loadInstitutions)
+onBeforeUnmount(cancelCountUp)
 </script>
 
 <template>
   <DefaultLayout>
-    <section class="hero-section bg-foreground text-white">
-      <div class="mx-auto grid max-w-7xl gap-8 px-5 pb-18 pt-11 sm:pb-20 sm:pt-14 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-end lg:gap-16 lg:px-8 lg:pb-22 lg:pt-16">
-        <div class="max-w-3xl">
-          <p class="mb-5 inline-flex items-center gap-2 border-l-2 border-accent pl-3 text-sm font-semibold tracking-wide text-accent">
-            <ShieldCheck class="size-4" aria-hidden="true" />
+    <section class="hero-section text-foreground">
+      <div class="mx-auto grid max-w-7xl gap-8 px-5 pb-16 pt-8 sm:pb-18 sm:pt-10 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-center lg:gap-12 lg:px-8 lg:pb-16 lg:pt-12 xl:grid-cols-[minmax(0,1fr)_32rem]">
+        <div class="min-w-0 max-w-3xl">
+          <p class="hero-source-badge mb-4 inline-flex max-w-full items-center gap-2 rounded-full px-3 py-1.5 text-xs sm:text-sm">
+            <ShieldCheck class="size-4 shrink-0" aria-hidden="true" />
             勞動部認可院所開放資料
           </p>
-          <h1 class="max-w-3xl text-4xl font-black leading-[1.12] tracking-[-0.035em] text-balance sm:text-5xl lg:text-[3.5rem]">
-            健檢去哪裡？<br />找到<span class="text-accent">認可的醫療機構</span>
+          <h1 class="max-w-3xl text-[2rem] leading-[1.35] tracking-normal text-balance sm:text-[2.75rem] lg:text-[2.75rem] xl:text-[3.25rem]">
+            健檢去哪裡？<br />找到<span class="text-primary">認可的醫療機構</span>
           </h1>
-          <p class="mt-4 max-w-2xl text-base leading-7 text-white/70 sm:mt-5 sm:text-lg sm:leading-8">
+          <p class="mt-4 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
             整合全台勞工體格及健康檢查認可院所，用縣市、院所或健檢類別快速篩選，讓你少繞點路。
           </p>
+          <dl class="mt-5 grid w-full max-w-lg grid-cols-3 sm:mt-6">
+            <div class="flex min-w-0 flex-col items-start gap-1 border-l py-1 pl-2 sm:pl-6">
+              <dt class="order-2 text-xs leading-5 text-muted-foreground sm:text-sm">認可院所</dt>
+              <dd class="order-1 text-2xl leading-8 tabular-nums text-foreground sm:text-3xl sm:leading-9">
+                <span aria-hidden="true">{{ statisticsReady ? displayedInstitutionCount : '—' }}</span>
+                <span class="sr-only">{{ statisticsReady ? institutions.length : '—' }}</span>
+              </dd>
+            </div>
+            <div class="flex min-w-0 flex-col items-start gap-1 border-l py-1 pl-2 sm:pl-6">
+              <dt class="order-2 text-xs leading-5 text-muted-foreground sm:text-sm">縣市覆蓋</dt>
+              <dd class="order-1 text-2xl leading-8 tabular-nums text-foreground sm:text-3xl sm:leading-9">
+                <span aria-hidden="true">{{ statisticsReady ? displayedCityCount : '—' }}</span>
+                <span class="sr-only">{{ statisticsReady ? cities.length : '—' }}</span>
+              </dd>
+            </div>
+            <div class="flex min-w-0 flex-col items-start gap-1 border-l py-1 pl-2 sm:pl-6">
+              <dt class="order-2 text-xs leading-5 text-muted-foreground sm:text-sm">資料更新</dt>
+              <dd class="order-1 text-sm leading-8 whitespace-nowrap tabular-nums text-foreground sm:text-xl sm:leading-9">{{ isLoading ? '—' : formattedUpdateTime }}</dd>
+            </div>
+          </dl>
         </div>
 
-        <div class="grid grid-cols-3 border-y border-white/15 py-5 lg:grid-cols-1 lg:gap-4 lg:border-y-0 lg:border-l lg:py-0 lg:pl-8">
-          <div>
-            <p class="text-2xl font-black tabular-nums sm:text-3xl lg:text-2xl">{{ isLoading ? '—' : institutions.length }}</p>
-            <p class="mt-1 text-xs text-white/55 sm:text-sm">認可院所</p>
-          </div>
-          <div class="border-l border-white/15 pl-4 sm:pl-6 lg:border-l-0 lg:pl-0">
-            <p class="text-2xl font-black tabular-nums sm:text-3xl lg:text-2xl">{{ isLoading ? '—' : cities.length }}</p>
-            <p class="mt-1 text-xs text-white/55 sm:text-sm">縣市覆蓋</p>
-          </div>
-          <div class="border-l border-white/15 pl-4 sm:pl-6 lg:border-l-0 lg:pl-0">
-            <p class="text-lg font-black tabular-nums sm:text-2xl lg:text-xl">{{ formattedUpdateTime }}</p>
-            <p class="mt-1 text-xs text-white/55 sm:text-sm">資料更新</p>
-          </div>
+        <!-- lg（1024px）以上顯示插圖並切換雙欄。 -->
+        <div class="hero-illustration relative hidden place-items-center lg:grid lg:h-96 xl:h-128" aria-hidden="true">
+          <img
+            :src="clinicVisit"
+            alt=""
+            width="1254"
+            height="1254"
+            fetchpriority="high"
+            decoding="async"
+            class="w-auto max-w-full object-contain lg:h-96 xl:h-128"
+          />
         </div>
       </div>
     </section>
 
     <section id="search" class="relative z-10 mx-auto -mt-8 max-w-7xl scroll-mt-6 px-5 lg:px-8">
       <InstitutionSearch
+        v-model:query-mode="queryMode"
         v-model:keyword="keyword"
         v-model:city="selectedCity"
+        v-model:selected-districts="selectedDistricts"
+        v-model:categories="selectedCategories"
         :cities="cities"
+        :districts="districts"
+        :category-options="categoryOptions"
+        :has-filters="hasFilters"
+        :error-message="errorMessage"
         :result-count="filteredInstitutions.length"
         :is-loading="isLoading"
         @reset="handleReset"
       />
     </section>
 
-    <section class="mx-auto min-h-[38rem] max-w-7xl px-5 pb-24 pt-10 lg:px-8 lg:pt-14">
+    <section v-show="queryMode === 'district'" class="mx-auto min-h-[38rem] max-w-7xl px-5 pb-24 pt-10 lg:px-8 lg:pt-14">
       <div class="mb-7 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p class="text-sm font-bold text-primary">搜尋結果</p>
@@ -133,7 +235,7 @@ onMounted(store.loadInstitutions)
           <SearchX class="size-6" aria-hidden="true" />
         </span>
         <h3 class="mt-5 text-xl font-bold">沒有找到符合的院所</h3>
-        <p class="mt-2 text-muted-foreground">試著重新輸入關鍵字，或改選其他縣市。</p>
+        <p class="mt-2 text-muted-foreground">試著調整關鍵字、縣市、鄉鎮市區，或減少勾選的健檢類別。</p>
         <Button v-if="hasFilters" variant="outline" class="mt-6 rounded-lg" @click="handleReset">
           清除所有條件
         </Button>

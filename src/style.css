@@ -3,28 +3,46 @@
 
 @custom-variant dark (&:is(.dark *));
 
-:root {
-  --background: #f4f8fa;
-  --foreground: #152a34;
-  --card: #ffffff;
-  --card-foreground: #152a34;
-  --primary: #0f7490;
-  --primary-foreground: #ffffff;
-  --secondary: #e7f3f5;
-  --secondary-foreground: #254c5a;
-  --muted: #edf3f5;
-  --muted-foreground: #5b7083;
-  --accent: #32c5b4;
-  --accent-foreground: #0b2d3a;
-  --destructive: #dc2626;
-  --border: #d7e4e8;
-  --input: #78939d;
-  --ring: #0f7490;
-  --mint: #32c5b4;
-  --brand-deep: #0b2d3a;
-  --radius: 0.75rem;
+@font-face {
+  font-family: "jf open 粉圓";
+  src: url("/fonts/jf-openhuninn-2.1.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
 
-  font-family: Inter, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", ui-sans-serif, system-ui, sans-serif;
+:root {
+  --background: #f7faf9;
+  --foreground: #233c43;
+  --card: #ffffff;
+  --card-foreground: #233c43;
+  --primary: #336c7d;
+  --primary-foreground: #ffffff;
+  --secondary: #edf5f2;
+  --secondary-foreground: #31584e;
+  --muted: #f0f5f3;
+  --muted-foreground: #5c716e;
+  --accent: #dbece6;
+  --accent-foreground: #233c43;
+  --destructive: #dc2626;
+  --border: #dce7e2;
+  --input: #7c9590;
+  --ring: var(--primary);
+  --mint: #dbece6;
+  --brand-deep: #233c43;
+  /* 灰藍統一品牌與操作色，淡薄荷只用於背景層次。 */
+  --header-background: var(--primary);
+  --header-foreground: #ffffff;
+  --header-logo-background: #ddf2eb;
+  --header-logo-foreground: #244b57;
+  --hero-background: var(--background);
+  --source-badge-background: #edf5f2;
+  --source-badge-foreground: #31584e;
+  --source-badge-border: #b6cfc5;
+  --radius: 0.75rem;
+  --app-font-family: "jf open 粉圓", "PingFang TC", "Microsoft JhengHei", ui-sans-serif, system-ui, sans-serif;
+
+  font-family: var(--app-font-family);
   color: var(--foreground);
   background: var(--background);
   font-synthesis: none;
@@ -33,6 +51,15 @@
 }
 
 @theme inline {
+  --font-sans: var(--app-font-family);
+  /* 粉圓體只有原生 Regular；以字級與留白呈現資訊層級。 */
+  --font-weight-medium: 400;
+  --font-weight-semibold: 400;
+  --font-weight-bold: 400;
+  --font-weight-extrabold: 400;
+  --font-weight-black: 400;
+  --tracking-tight: 0em;
+  --tracking-wide: 0.015em;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -51,6 +78,11 @@
   --color-ring: var(--ring);
   --color-mint: var(--mint);
   --color-brand-deep: var(--brand-deep);
+  --color-header: var(--header-background);
+  --color-header-foreground: var(--header-foreground);
+  --color-header-logo: var(--header-logo-background);
+  --color-header-logo-foreground: var(--header-logo-foreground);
+  --color-hero: var(--hero-background);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -59,7 +91,13 @@
 
 * {
   box-sizing: border-box;
-  border-color: var(--border);
+}
+
+/* 預設邊線放在 base 層，讓元件的 border-input / 焦點色能正常覆寫。 */
+@layer base {
+  * {
+    border-color: var(--border);
+  }
 }
 
 html {
@@ -90,8 +128,17 @@ select {
 }
 
 .hero-section {
-  background: var(--brand-deep);
-  border-bottom: 1px solid color-mix(in oklch, white 12%, transparent);
+  background: var(--hero-background);
+}
+
+.hero-illustration img {
+  filter: drop-shadow(0 0.5rem 0.75rem rgb(35 60 67 / 7%));
+}
+
+.hero-source-badge {
+  color: var(--source-badge-foreground);
+  background: var(--source-badge-background);
+  border: 1px solid var(--source-badge-border);
 }
 
 @media (prefers-reduced-motion: reduce) {
